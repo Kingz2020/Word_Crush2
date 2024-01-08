@@ -2,20 +2,18 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TileMove
-{
+public class TileMove: MonoBehaviour {
     public int X { get; set; }
     public int Y { get; set; }
-
-    public string letter;
+    public bool onBoard = false;
+    
 
     // Start is called before the first frame update
 
-    public TileMove(Vector2Int recordedPosition, string letter)
-    {
-        this.X = recordedPosition.x;
-        this.Y = recordedPosition.y;
-        this.letter = letter;
+    public void SetTileMove(Vector2Int recordedPosition) {
+        X = recordedPosition.x;
+        Y = recordedPosition.y;
+        onBoard = true;
     }
 
 

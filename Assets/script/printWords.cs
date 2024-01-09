@@ -16,7 +16,6 @@ public class PrintWords : MonoBehaviour
 {
 
     private BoardScript boardScript;
-    private EndTurnBtn endTurnBtn;
     private ValTiles valTiles;
     private const int boardSize = 15;
 
@@ -26,7 +25,6 @@ public class PrintWords : MonoBehaviour
     public void Start()
     {
         boardScript = GameObject.Find("Board").GetComponent<BoardScript>(); // Initialize reference to BoardScript
-        endTurnBtn = GameObject.Find("Button_end_turn").GetComponent<EndTurnBtn>();
         scrabbleWords = new List<string>(scrabbleWordsList.text.Split(new[] { "\r\n", "\r", "\n" },
             StringSplitOptions.None));
     }
@@ -47,12 +45,7 @@ public class PrintWords : MonoBehaviour
     }
     //PlacedTile is a combination of location of the tile in x/y and information about the tile itself(letter/ points)
 
-
-    public void  DebugPrintMeth()
-    {
-
-        Debug.Log(boardScript.AllTilesInSameLine());
-    }
+    
     private bool IsAttached(List<TileMove> recordedPositions, string[,] valTiles)
     {
         // Check if any of the recorded positions are adjacent to a valTile
@@ -79,33 +72,6 @@ public class PrintWords : MonoBehaviour
         // If no adjacent valTile is found, return false
         return false;
     }
-    public void printwordz()
-    {
-        StringBuilder wordList = new StringBuilder();
-        bool isAttached = IsAttached(boardScript.recordedPositions, boardScript.valTiles);
-        bool isEmptyBoard = boardScript.CheckEmptyBoard(boardScript.valTiles);
 
-        if (isAttached || (!isAttached && isEmptyBoard))
-        {
-            foreach (var word in boardScript.CollectAllWords(boardScript.AllTilesInSameLine()))
-            {
-                wordList.Append(word + ", ");
-                IsInDict(word);
 
-            }
-            Debug.Log(wordList.ToString());
-
-        }
-        else 
-        {
-            Debug.Log("not attached");
-        }
-
-    }
-
-    
-
-    
-
-    
 }

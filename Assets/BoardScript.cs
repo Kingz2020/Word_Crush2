@@ -1,69 +1,92 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.EventSystems;
-using UnityEngine.Tilemaps;
-using UnityEngine.UI;
 using static PrintWords;
-using static UnityEngine.RuleTile.TilingRuleOutput;
 
-
-
-public class BoardScript : MonoBehaviour
-{
+public class BoardScript : MonoBehaviour {
+    
     public TextMeshProUGUI textScore;
-    //private ValTiles valTiles;
-
     TileBag2 tileBag2;
     TileScript2 tileScript2;
+    [SerializeField] private PrintWords printWords;
     public UnityEvent hidePointTiles;
-
-    void OnDrawGizmos()
-    {
+    public List<TileMove> recordedPositions = new List<TileMove>();
+    public TileScript2[,] valTiles = new TileScript2[15, 15];
+    public TileScript2[,] placedTilePositions = new TileScript2[15, 15];
+    public int currentScore;
+    public int gridSizeX = 15; // Set your grid size X dimension here (e.g., 15).
+    public int gridSizeY = 15; // Set your grid size Y dimension here (e.g., 15).
+    
+    void OnDrawGizmos() {
         // Draw a yellow sphere at the transform's position
         Gizmos.color = Color.yellow;
         Gizmos.DrawSphere(transform.position, 1);
     }
 
-    //private List<Vector2Int> recordedPositions = new List<Vector2Int>();
-    public List<TileMove> recordedPositions = new List<TileMove>();
-    public string[,] valTiles = new string[15, 15];
-    public int currentScore;
+    public void EndTurn() {
+        // Clear the validated tiles list for a new turn
+        // Validate the board for valid placement
+        // Validate that all tiles form correct words
 
-    public void HideAllPointTiles()
-    {
+        // Populate the validated tiles list with recorded positions
+        //List<TileMove> recordedPositions = boardScript.GetRecordedPositions();
+
+        foreach (List<TileScript2> word in CollectAllWords(AllTilesInSameLine())) {
+            string assembledWord = String.Empty;
+            foreach (var letter in word) {
+                assembledWord += letter.GetLetter();
+            }
+            
+            if (!printWords.IsInDict(assembledWord)) {
+                Debug.Log("this is not a valid word :" + assembledWord);
+                RetrieveTilesFromBoard();
+                return;
+            }
+
+        }
+        Debug.Log("all words are valid");
+
+        foreach (TileMove tileMove in GetRecordedPositions()) {
+            valTiles[tileMove.X, tileMove.Y] = tileMove.GetComponent<TileScript2>();
+        }
+
+        Debug.Log("all letters are stored");
+
+        // Refill player's hand
+        int currentTileCount = tileBag2.GetCurrentTileCount();
+        tileBag2.RefillHandTiles(currentTileCount);
+
+        recordedPositions.Clear();
+            
+
+        // Update points
+        // ... Implement logic to update player's points
+
+        // Transfer moves to board array and/or history, chat, and clear the list
+        // ... Implement logic to transfer moves to relevant data structures and clear the list
+
+        // Pass turn to other player
+        // ... Implement logic to pass turn to the next player
+    }
+
+    public void HideAllPointTiles() {
          hidePointTiles?.Invoke();
     }
-    private void Start()
-    {
+    private void Start() {
         tileBag2 = GameObject.Find("Handtiles").GetComponent<TileBag2>();
         //tileScript2 = GameObject.Find("New Basic Tile").GetComponent<TileScript2>();
     }
     
-public void RecordTilePosition(TileMove tileMove)
-    {
+    public void RecordTilePosition(TileMove tileMove) {
         // Record the position of the placed tile.
         recordedPositions.Add(tileMove);
     }
 
-    
-
-    public List<TileMove> GetRecordedPositions()
-    {
+    public List<TileMove> GetRecordedPositions() {
         return recordedPositions;
-    }
-
-    public void DisplayRecordedPositions()
-    {
-        foreach (var tileMove in recordedPositions)
-        {
-            Debug.Log("Recorded Position: " + tileMove.X + ", " + tileMove.Y);
-            Debug.Log("Letter: " + tileMove.letter);
-        }
     }
 
     public GameObject GetTileAtPosition(Vector2Int position)
@@ -106,8 +129,7 @@ public void RecordTilePosition(TileMove tileMove)
 
     }*/
 
-    public TilePlacement AllTilesInSameLine()
-    {
+    public TilePlacement AllTilesInSameLine() {
         //string[,] valTiles = valTiles;
         List<TileMove> thisTurn = GetRecordedPositions();
         if (thisTurn.Count == 0) return TilePlacement.NoTilePlaced;
@@ -115,8 +137,7 @@ public void RecordTilePosition(TileMove tileMove)
         TileMove checkTile = thisTurn[0];
         bool vertical = true;
         bool horizontal = true;
-        foreach (var pos in thisTurn)
-        {
+        foreach (var pos in thisTurn) {
             if (pos.X != checkTile.X) horizontal = false;
             if (pos.Y != checkTile.Y) vertical = false;
         }
@@ -125,8 +146,7 @@ public void RecordTilePosition(TileMove tileMove)
         return TilePlacement.WrongTilePlacement;
     }
 
-    private Vector2Int GetTilePositionFromGameObject(GameObject tile)
-    {
+    private Vector2Int GetTilePositionFromGameObject(GameObject tile) {
         string tileName = tile.name;
 
         // Extract the X and Y coordinates from the tile's name
@@ -137,79 +157,49 @@ public void RecordTilePosition(TileMove tileMove)
         return new Vector2Int(xPosition, yPosition);
     }
 
-    public void RetrieveTilesFromBoard()
-    {
-        //List<TileMove> recordedPositions = boardScript.GetRecordedPositions();
-
-        foreach (TileMove position in recordedPositions)
-        {
-            string tileName = "Tile" + position.X + "X" + position.Y + "Y";
-            GameObject tile = GameObject.Find(tileName);
-
-            if (tile != null)
-            {
-                tileBag2.AddTileToHand(tile);
-                // Adjust position/size if needed
-
-                //RemoveTileFromBoard(tile);
-            }
+    public void RetrieveTilesFromBoard() {
+        foreach (TileMove position in recordedPositions) {
+            position.onBoard = false;
+            tileBag2.AddTileToHand(position.gameObject.GetComponent<TileScript2>());
         }
         recordedPositions.Clear();
+        placedTilePositions = new TileScript2[15, 15];
     }
-    public List<String> CollectAllWords(TilePlacement orientation)
-    {
-        List<String> wordList = new List<String>();
-        //string[,] tempBoard = (string[, ]) ValTiles.Clone();
-        string[,] tempBoard = (string[,])valTiles.Clone();
+    
+    public List<List<TileScript2>> CollectAllWords(TilePlacement orientation) {
+        List<List<TileScript2>> wordList = new List<List<TileScript2>>();
+        if (orientation == TilePlacement.NoTilePlaced) return wordList;
+        TileScript2[,] tempBoard = (TileScript2[,]) valTiles.Clone();
 
-        foreach (var tempTile in GetRecordedPositions())
-        {
-            tempBoard[tempTile.X, tempTile.Y] = tempTile.letter;
+        foreach (var tempTile in GetRecordedPositions()) {
+            tempBoard[tempTile.X, tempTile.Y] = tempTile.GetComponent<TileScript2>();
         }
 
-
-
-        //foreach (var tempTile in GetRecordedPositions())
-        //{
-
-
-
-        if (orientation == TilePlacement.SingleTile)
-        {   var singleTile = GetRecordedPositions()[0];
-             if( tempBoard[singleTile.X - 1, singleTile.Y] == null
+        if (orientation == TilePlacement.SingleTile) {
+            var singleTile = GetRecordedPositions()[0];
+            if( tempBoard[singleTile.X - 1, singleTile.Y] == null
                 && tempBoard[singleTile.X, singleTile.Y - 1] == null
                 && tempBoard[singleTile.X + 1, singleTile.Y] == null
-                && tempBoard[singleTile.X, singleTile.Y + 1] == null)
-            {
-                wordList.Add(singleTile.letter);
+                && tempBoard[singleTile.X, singleTile.Y + 1] == null) {
+                List<TileScript2> tempList = new List<TileScript2>();
+                tempList.Add(singleTile.GetComponent<TileScript2>());
+                wordList.Add(tempList);
                 return wordList;
-
             }
         }
-        //(//)}
 
-        foreach (var tempTile in GetRecordedPositions())
-        { 
-
-            if (orientation == TilePlacement.Horizontal || orientation == TilePlacement.SingleTile)
-            {
-                if (tempBoard[tempTile.X - 1, tempTile.Y] != null)
-                {
+        foreach (var tempTile in GetRecordedPositions()) {
+            if (orientation == TilePlacement.Horizontal || orientation == TilePlacement.SingleTile) {
+                if (tempBoard[tempTile.X - 1, tempTile.Y] != null) {
                     wordList.Add(GetWordFromBoard(TilePlacement.Horizontal, tempBoard, GetFirstLetterIndex(TilePlacement.Horizontal, tempBoard, tempTile.X, tempTile.Y), tempTile.Y));
-                }
-                else if (tempBoard[tempTile.X + 1, tempTile.Y] != null)
-                {
+                } else if (tempBoard[tempTile.X + 1, tempTile.Y] != null) {
                     wordList.Add(GetWordFromBoard(TilePlacement.Horizontal, tempBoard, tempTile.X, tempTile.Y));
                 }
             }
-            if (orientation == TilePlacement.Vertical || orientation == TilePlacement.SingleTile)
-            {
-                if (tempBoard[tempTile.X, tempTile.Y - 1] != null)
-                {
+            if (orientation == TilePlacement.Vertical || orientation == TilePlacement.SingleTile) {
+                if (tempBoard[tempTile.X, tempTile.Y - 1] != null) {
                     wordList.Add(GetWordFromBoard(TilePlacement.Vertical, tempBoard, tempTile.X, GetFirstLetterIndex(TilePlacement.Vertical, tempBoard, tempTile.X, tempTile.Y)));
-                }
-                else if (tempBoard[tempTile.X, tempTile.Y + 1] != null)
-                {
+                } else if (tempBoard[tempTile.X, tempTile.Y + 1] != null) {
                     wordList.Add(GetWordFromBoard(TilePlacement.Vertical, tempBoard, tempTile.X, tempTile.Y));
                 }
             }
@@ -242,116 +232,43 @@ public void RecordTilePosition(TileMove tileMove)
         return wordList;
     }
 
-    public int GetFirstLetterIndex(TilePlacement orientation, string[,] board, int row, int col)
-    {
-        do
-        {
+    public int GetFirstLetterIndex(TilePlacement orientation, TileScript2[,] board, int row, int col) {
+        do {
             if (orientation == TilePlacement.Horizontal) row--;
             if (orientation == TilePlacement.Vertical) col--;
         } while (board[row, col] != null);
         return orientation == TilePlacement.Horizontal ? ++row : ++col;
     }
 
-    public string GetWordFromBoard(TilePlacement orientation, string[,] board, int row, int col)
-    {
-        string newWord = string.Empty;
-        while (board[row, col] != null)
-        {
-            newWord += (board[row, col]);
+    public List<TileScript2> GetWordFromBoard(TilePlacement orientation, TileScript2[,] board, int row, int col) {
+        List<TileScript2> newWord = new List<TileScript2>();
+        while (board[row, col] != null) {
+            newWord.Add(board[row, col]);
             if (orientation == TilePlacement.Horizontal) row++;
             if (orientation == TilePlacement.Vertical) col++;
         }
         return newWord;
     }
 
-    public bool CheckEmptyBoard(string[,] valTiles)
-    {
-        for (int row = 0; row < valTiles.GetLength(0); row++)
-        {
-            for (int col = 0; col < valTiles.GetLength(1); col++)
-            {
-                if (valTiles[row, col] != null)
-                {
+    public bool CheckEmptyBoard(TileScript2[,] valTiles) {
+        for (int row = 0; row < valTiles.GetLength(0); row++) {
+            for (int col = 0; col < valTiles.GetLength(1); col++) {
+                if (valTiles[row, col] != null) {
                     return false;
                 }
             }
         }
         return true;
     }
-    /*
-    public int CalculateScore(List<string> words)
-    {
-        if (words.Count == 0)
-        {
-            return 0;
-        }
-
+    
+    public int CalculateScore(List<List<TileScript2>> words) {
         int totalScore = 0;
-        foreach (string word in words)
-        {
-            int wordScore = 0;
-            foreach (char c in word)
-            {
-                wordScore += tileBag2.GetLetterValue(c);
-            }
-            totalScore += wordScore;
-        }
-
-        return totalScore;
-    }*/
-
-    public int CalculateScore(List<string> words)
-    {
-        if (words.Count == 0)
-        {
-            int score = 0;
-
-            if (recordedPositions != null && recordedPositions.Count > 0)
-            {
-                
-                foreach (string c in recordedPositions.Select(m => m.letter).ToList())
-                {
-                    score += TileBag2.GetLetterValue(c[0]);
-                }
-
-                return score;
+        foreach (List<TileScript2> word in words) {
+            foreach (var tile in word) {
+                totalScore += tile.GetPoints();    
             }
         }
-
-            int totalScore = 0;
-        foreach (string word in words)
-        {
-            /*if (word.EndsWith(","))
-            {
-                string currentWord = word.Substring(0, word.Length - 1); // Create a local variable
-
-                int wordScore = 0;
-                foreach (char c in currentWord.ToCharArray())
-                {
-                    wordScore += TileBag2.GetLetterValue(c);
-                }
-
-                totalScore += wordScore;
-            }
-            else
-            {*/
-                string currentWord = word; // Create a local variable
-
-                int wordScore = 0;
-                foreach (char c in currentWord.ToCharArray())
-                {
-                    wordScore += TileBag2.GetLetterValue(c);
-                }
-
-                totalScore += wordScore;
-
-            //}
-        }
-
         return totalScore;
     }
-
-
-    
 }
 

@@ -42,7 +42,7 @@ public class ValTiles : MonoBehaviour
     }
 
 
-    private bool CheckSameLine(List<TileMove> tileMove, string[,] valTiles)
+    private bool CheckSameLine(List<TileMove> tileMove, TileScript2[,] valTiles)
     {
         // Check if all tiles share the same line (either horizontal or vertical)
         bool sameLine = true;
@@ -101,7 +101,7 @@ public class ValTiles : MonoBehaviour
         return true; // Valid line, either no gaps or all gaps are filled with validated tiles
     }
 
-    private bool CheckGap(TileMove tileMove1, TileMove tileMove2, string[,] valTiles)
+    private bool CheckGap(TileMove tileMove1, TileMove tileMove2, TileScript2[,] valTiles)
     {
         if (tileMove2.Y - tileMove1.Y > 1)
         {

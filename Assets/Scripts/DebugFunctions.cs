@@ -20,7 +20,7 @@ public class DebugFunctions: MonoBehaviour {
     }
 
     public void DrawTile() {
-        tileBag.AddTileToHand(tileBag.GetRandomLetterFromBag());
+        //tileBag.AddTileToHand(tileBag.GetRandomLetterFromBag());
     }
     
     public void CheckSameLine() {

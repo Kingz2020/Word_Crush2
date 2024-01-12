@@ -9,9 +9,11 @@ using static PrintWords;
 public class BoardScript : MonoBehaviour {
     
     public TextMeshProUGUI textScore;
+    public GameObject handTileHolder;
     TileBag _tileBag;
     TileScript _tileScript;
     [SerializeField] private PrintWords printWords;
+    [SerializeField] private TurnManager _turnManager;
     public UnityEvent hidePointTiles;
     public List<TileMove> recordedPositions = new List<TileMove>();
     public TileScript[,] valTiles = new TileScript[15, 15];
@@ -54,11 +56,9 @@ public class BoardScript : MonoBehaviour {
         }
 
         Debug.Log("all letters are stored");
-
-        // Refill player's hand
-        int currentTileCount = _tileBag.GetCurrentTileCount();
-        _tileBag.RefillHandTiles(currentTileCount);
-
+        
+        SetPlayerHandTiles(_turnManager.GetTilesForRound());
+        _turnManager.SetPlayersTurn(recordedPositions);
         recordedPositions.Clear();
             
 
@@ -76,10 +76,14 @@ public class BoardScript : MonoBehaviour {
          hidePointTiles?.Invoke();
     }
     private void Start() {
-        _tileBag = GameObject.Find("Handtiles").GetComponent<TileBag>();
+        SetPlayerHandTiles(_turnManager.GetTilesForRound());
         //tileScript2 = GameObject.Find("New Basic Tile").GetComponent<TileScript2>();
     }
-    
+
+    private void Awake() {
+        _tileBag = GameObject.Find("Handtiles").GetComponent<TileBag>();
+    }
+
     public void RecordTilePosition(TileMove tileMove) {
         // Record the position of the placed tile.
         recordedPositions.Add(tileMove);
@@ -88,46 +92,17 @@ public class BoardScript : MonoBehaviour {
     public List<TileMove> GetRecordedPositions() {
         return recordedPositions;
     }
-
-    public GameObject GetTileAtPosition(Vector2Int position)
-    {
-        GameObject[] tilesOnBoard = GameObject.FindGameObjectsWithTag("New Basic Tile");
-
-        foreach (GameObject tile in tilesOnBoard)
-        {
-            TileScript tileScript = tile.GetComponent<TileScript>();
-
-            // Retrieve the recorded local positions of the tiles.
-            List<Vector3> localPositions = tileScript.GetLocalPositions();
-
-            foreach (var localPos in localPositions)
-            {
-                Vector3 boardPosition = transform.position; // Adjust this to match the board's position or relative positioning.
-
-                // Check if the calculated local position matches the provided position.
-                if (Vector2Int.FloorToInt(boardPosition) == position)
-                {
-                    return tile;
-                }
-            }
+    
+    public void SetPlayerHandTiles(List<TileScript> tiles) {
+        foreach (TileScript tile in _turnManager.GetTilesForRound()) {
+           AddTileToHand(tile);
         }
-
-        return null; // If no tile is found at the given position.
     }
-    /*public void RemoveTileFromBoard(GameObject tile)
-    {
-        // Disable the tile's visual representation
-        //tile.SetActive(false);
 
-        // Retrieve the tile's position from the recorded positions
-        //List<TileMove> recordedPositions = GetRecordedPositions();
-        //Vector2Int tilePosition = GetTilePositionFromGameObject(tile);
-
-        // Remove the tile from the recorded positions
-        //recordedPositions.RemoveAll(tileMove => tileMove.X == tilePosition.x && tileMove.Y == tilePosition.y );
-
-
-    }*/
+    private void AddTileToHand(TileScript tile) {
+        tile.gameObject.SetActive(true);
+        tile.transform.SetParent(handTileHolder.transform);
+    }
 
     public TilePlacement AllTilesInSameLine() {
         //string[,] valTiles = valTiles;
@@ -146,21 +121,10 @@ public class BoardScript : MonoBehaviour {
         return TilePlacement.WrongTilePlacement;
     }
 
-    private Vector2Int GetTilePositionFromGameObject(GameObject tile) {
-        string tileName = tile.name;
-
-        // Extract the X and Y coordinates from the tile's name
-        int xPosition = int.Parse(tileName.Substring(4, 1));
-        int yPosition = int.Parse(tileName.Substring(6, 1));
-
-        // Return the tile's position as a Vector2Int
-        return new Vector2Int(xPosition, yPosition);
-    }
-
     public void RetrieveTilesFromBoard() {
         foreach (TileMove position in recordedPositions) {
             position.onBoard = false;
-            _tileBag.AddTileToHand(position.gameObject.GetComponent<TileScript>());
+            AddTileToHand(position.GetComponent<TileScript>());
         }
         recordedPositions.Clear();
         placedTilePositions = new TileScript[15, 15];

@@ -4,22 +4,16 @@ using UnityEngine;
 public class TileBag: MonoBehaviour {
     
     public GameObject tilePrefab; // The prefab of a tile.
-    public GameObject handTileHolder; // The holder for hand tiles.
-    
+
     private List<TileScript> tileBag = new List<TileScript>();
-    [SerializeField]
-    private int startHandSize = 6;
     public List<TileScript> handTiles = new List<TileScript>();
     
     public int GetCurrentTileCount() {
         return handTiles.Count;
     }
 
-    private void Start() {
+    private void Awake() {
         InitializeTileBag();
-        for (int amount = 1; amount <= startHandSize; amount++) {
-            AddTileToHand(GetRandomLetterFromBag());
-        }
     }
 
     private void InitializeTileBag() {
@@ -69,18 +63,4 @@ public class TileBag: MonoBehaviour {
         return randomTile;
     }
 
-    public void AddTileToHand(TileScript tile) {
-        tile.gameObject.SetActive(true);
-        tile.transform.SetParent(handTileHolder.transform);
-        handTiles.Add(tile);
-    }
-
-    public void RefillHandTiles(int currentTileCount) {
-        // Calculate the number of tiles needed to refill
-        int tilesToDraw = 7 - currentTileCount; 
-        // Draw the calculated number of random tiles from the bag
-        for (int amount = 1; amount < tilesToDraw; amount++) {
-            AddTileToHand(GetRandomLetterFromBag());
-        }
-    }
 }

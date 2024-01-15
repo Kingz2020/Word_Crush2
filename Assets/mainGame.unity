@@ -638,7 +638,6 @@ GameObject:
   m_Component:
   - component: {fileID: 341371213}
   - component: {fileID: 341371215}
-  - component: {fileID: 341371216}
   m_Layer: 5
   m_Name: Handtiles
   m_TagString: Untagged
@@ -689,20 +688,6 @@ MonoBehaviour:
   m_Spacing: {x: 0, y: 0}
   m_Constraint: 0
   m_ConstraintCount: 2
---- !u!114 &341371216
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 341371212}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 937fab5e148bb714a9639186c003a89a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  tilePrefab: {fileID: 6910530602892107897, guid: 45134039511553544b25d76392dc5f49, type: 3}
-  handTiles: []
 --- !u!1 &447351878
 GameObject:
   m_ObjectHideFlags: 0
@@ -1706,6 +1691,56 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 816037757}
   m_CullTransparentMesh: 1
+--- !u!1 &842001869
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 842001870}
+  - component: {fileID: 842001871}
+  m_Layer: 5
+  m_Name: TileBag
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &842001870
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 842001869}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1663706899}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &842001871
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 842001869}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 937fab5e148bb714a9639186c003a89a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tilePrefab: {fileID: 6910530602892107897, guid: 45134039511553544b25d76392dc5f49, type: 3}
+  handTiles: []
 --- !u!1 &922098774
 GameObject:
   m_ObjectHideFlags: 0
@@ -2155,7 +2190,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a5892f5c1d5b47548a84fa7262e8bc40, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _tileBag: {fileID: 341371216}
+  _tileBag: {fileID: 842001871}
   _boardScript: {fileID: 1140604054}
   OnTurnEnd:
     m_PersistentCalls:
@@ -2220,7 +2255,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   boardScript: {fileID: 1140604054}
-  tileBag: {fileID: 341371216}
+  tileBag: {fileID: 0}
   printWords: {fileID: 0}
 --- !u!1 &1360177868
 GameObject:
@@ -2858,6 +2893,7 @@ RectTransform:
   - {fileID: 1234429364}
   - {fileID: 1721437376}
   - {fileID: 922098775}
+  - {fileID: 842001870}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}

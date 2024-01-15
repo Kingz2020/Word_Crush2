@@ -81,7 +81,7 @@ public class BoardScript : MonoBehaviour {
     }
 
     private void Awake() {
-        _tileBag = GameObject.Find("Handtiles").GetComponent<TileBag>();
+        _tileBag = GameObject.Find("TileBag").GetComponent<TileBag>();
     }
 
     public void RecordTilePosition(TileMove tileMove) {

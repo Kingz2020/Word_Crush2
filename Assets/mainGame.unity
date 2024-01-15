@@ -2255,8 +2255,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   boardScript: {fileID: 1140604054}
-  tileBag: {fileID: 0}
-  printWords: {fileID: 0}
+  tileBag: {fileID: 842001871}
 --- !u!1 &1360177868
 GameObject:
   m_ObjectHideFlags: 0

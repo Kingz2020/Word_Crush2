@@ -17,7 +17,8 @@ public class TurnManager: MonoBehaviour {
     private int currentRound = 1;
 
     private void Start() {
-        RefillHandTiles(6);
+        RefillHandTiles(7);
+        OnTurnEnd.Invoke();
     }
 
     private void Awake() {

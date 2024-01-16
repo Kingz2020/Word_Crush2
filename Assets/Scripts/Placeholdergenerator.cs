@@ -43,7 +43,14 @@ public class PlaceholderGenerator : MonoBehaviour
                 //placeholder.transform.SetParent(board.transform);
                 placeholder.transform.localPosition = position;
                 placeholder.transform.localEulerAngles = new Vector3();
+                // Check for the special case of [7, 7] and change the color of the blankoPrefab.
+                if (row == 7 && col == 7)
+                {
+                    placeholder.GetComponentInChildren<Image>().color = Color.cyan;
+                }
                 placeholder.GetComponent<RectTransform>().sizeDelta = cellsize;
+                
+               
             }
         }
     }

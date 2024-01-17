@@ -32,6 +32,10 @@ public class DebugFunctions: MonoBehaviour {
         }
     }
 
+    public void NewGame() {
+        boardScript.StartNewGame();
+    }
+
     public void PrintWords() {
         foreach (var word in boardScript.CollectAllWords(boardScript.AllTilesInSameLine())) {
             string fullWord = String.Empty;

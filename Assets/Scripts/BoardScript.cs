@@ -14,6 +14,7 @@ public class BoardScript : MonoBehaviour {
     TileScript _tileScript;
     [SerializeField] private PrintWords printWords;
     [SerializeField] private TurnManager _turnManager;
+    [SerializeField] private DisplayHandler _displayHandler;
     public UnityEvent hidePointTiles;
     public List<TileMove> recordedPositions = new List<TileMove>();
     public TileScript[,] valTiles = new TileScript[15, 15];
@@ -26,6 +27,14 @@ public class BoardScript : MonoBehaviour {
         // Draw a yellow sphere at the transform's position
         Gizmos.color = Color.yellow;
         Gizmos.DrawSphere(transform.position, 1);
+    }
+
+    public void StartNewGame() {
+        _tileBag.RetrieveAllTiles();
+        _turnManager.ResetTurnManager();
+        _turnManager.RefillHandTiles(6);
+        SetPlayerHandTiles(_turnManager.GetTilesForRound());
+        _displayHandler.ResetDisplay();
     }
 
     public void EndTurn() {
@@ -74,10 +83,6 @@ public class BoardScript : MonoBehaviour {
 
     public void HideAllPointTiles() {
          hidePointTiles?.Invoke();
-    }
-    private void Start() {
-        SetPlayerHandTiles(_turnManager.GetTilesForRound());
-        //tileScript2 = GameObject.Find("New Basic Tile").GetComponent<TileScript2>();
     }
 
     private void Awake() {

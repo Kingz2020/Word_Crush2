@@ -16,11 +16,6 @@ public class TurnManager: MonoBehaviour {
     public List<List<TileMove>> recordedPositions = new List<List<TileMove>>();
     private int currentRound = 1;
 
-    private void Start() {
-        RefillHandTiles(7);
-        OnTurnEnd.Invoke();
-    }
-
     private void Awake() {
         players.Add("Player 1");
         players.Add("Player 2");

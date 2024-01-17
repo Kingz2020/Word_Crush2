@@ -10,15 +10,15 @@ public class DisplayHandler: MonoBehaviour {
     [SerializeField] private TextMeshProUGUI playerName;
     [SerializeField] private TextMeshProUGUI currentRound;
 
-    void Start() {
-        SetPlayerName();
-        SetCurrentRound();
-    }
-
     private void Awake() {
         _turnManager.OnTurnEnd.AddListener(SetPlayerName);
         _turnManager.OnTurnEnd.AddListener(SetCurrentRound);
         
+    }
+
+    public void ResetDisplay() {
+        SetPlayerName();
+        SetCurrentRound();
     }
 
     void SetPlayerName() {

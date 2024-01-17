@@ -23,12 +23,9 @@ public class PlaceholderGenerator : MonoBehaviour
         GeneratePlaceholders();
     }
 
-    void GeneratePlaceholders()
-    {
-        for (int row = 0; row < rows; row++)
-        {
-            for (int col = 0; col < columns; col++)
-            {
+    void GeneratePlaceholders() {
+        for (int row = 0; row < rows; row++) {
+            for (int col = 0; col < columns; col++) {
                 // Calculate the position of each placeholder relative to the board, including the offset.
                 Vector3 position = new Vector3(
                      offset.x + (col * cellsize.x),
@@ -51,6 +48,24 @@ public class PlaceholderGenerator : MonoBehaviour
                 placeholder.GetComponent<RectTransform>().sizeDelta = cellsize;
                 
                
+            }
+        }
+    }
+
+    public void RegenerateBoard(TileScript[,] boardForRound) {
+        for (int row = 0; row < rows; row++) {
+            for (int col = 0; col < columns; col++) {
+                // Calculate the position of each placeholder relative to the board, including the offset.
+                Vector3 position = new Vector3(
+                    offset.x + (col * cellsize.x),
+                    -offset.y - (row * cellsize.y),
+                    0);
+                if (boardForRound[row, col] != null) {
+                    var temp = boardForRound[row, col];
+                    temp.gameObject.transform.SetParent(board.transform);
+                    temp.gameObject.transform.localPosition = position;
+                    temp.gameObject.SetActive(true);
+                }
             }
         }
     }

@@ -64,12 +64,10 @@ public class BoardScript : MonoBehaviour {
             valTiles[tileMove.X, tileMove.Y] = tileMove.GetComponent<TileScript>();
         }
 
-        Debug.Log("all letters are stored");
-        
-        SetPlayerHandTiles(_turnManager.GetTilesForRound());
+        //SetPlayerHandTiles(_turnManager.GetTilesForRound());
         _turnManager.SetPlayersTurn(recordedPositions);
         recordedPositions.Clear();
-            
+        HideAllPointTiles();    
 
         // Update points
         // ... Implement logic to update player's points
@@ -79,6 +77,7 @@ public class BoardScript : MonoBehaviour {
 
         // Pass turn to other player
         // ... Implement logic to pass turn to the next player
+        _turnManager.EndTurn();
     }
 
     public void HideAllPointTiles() {

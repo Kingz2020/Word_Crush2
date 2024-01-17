@@ -9,10 +9,12 @@ public class TurnManager: MonoBehaviour {
 
     [SerializeField] private TileBag _tileBag;
     [SerializeField] private BoardScript _boardScript;
+    [SerializeField] private PlaceholderGenerator _generator;
     public UnityEvent OnTurnEnd;
     public List<string> players = new List<string>();
     public int turn;
     public List<TileScript> tilesForRound = new List<TileScript>();
+    public TileScript[,] boardForRound = new TileScript[15, 15];
     public List<List<TileMove>> recordedPositions = new List<List<TileMove>>();
     private int currentRound = 1;
 
@@ -26,17 +28,27 @@ public class TurnManager: MonoBehaviour {
     public void ResetTurnManager() {
         turn = 0;
         currentRound = 1;
+        boardForRound = new TileScript[15, 15];
+        tilesForRound = new List<TileScript>();
     }
 
     public void EndTurn() {
         turn++;
+        _tileBag.RetrieveAllTiles();
         if (currentRound < GetRoundNumber()) {
-            RefillHandTiles(recordedPositions[0].Count);
+            foreach (var tile in recordedPositions[1]) {
+                tilesForRound.Remove(tile.GetComponent<TileScript>());
+            }
+            RefillHandTiles(recordedPositions[1].Count);
             currentRound = GetRoundNumber();
             recordedPositions[0].Clear();
             recordedPositions[1].Clear();
+            boardForRound = (TileScript[,]) _boardScript.valTiles.Clone();
         }
-        OnTurnEnd.Invoke();
+        _boardScript.valTiles = boardForRound;
+        _boardScript.SetPlayerHandTiles(GetTilesForRound());
+        _generator.RegenerateBoard(boardForRound);
+        OnTurnEnd?.Invoke();
     }
 
     public void SetPlayersTurn(List<TileMove> moves) {

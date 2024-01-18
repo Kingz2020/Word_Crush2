@@ -45,6 +45,7 @@ public class TurnManager: MonoBehaviour {
             recordedPositions[1].Clear();
             boardForRound = (TileScript[,]) _boardScript.valTiles.Clone();
         }
+        _boardScript.placedTilePositions = boardForRound;
         _boardScript.valTiles = boardForRound;
         _boardScript.SetPlayerHandTiles(GetTilesForRound());
         _generator.RegenerateBoard(boardForRound);

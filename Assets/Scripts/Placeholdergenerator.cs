@@ -60,8 +60,8 @@ public class PlaceholderGenerator : MonoBehaviour
                     offset.x + (col * cellsize.x),
                     -offset.y - (row * cellsize.y),
                     0);
-                if (boardForRound[row, col] != null) {
-                    var temp = boardForRound[row, col];
+                if (boardForRound[col, row] != null) {
+                    var temp = boardForRound[col, row];
                     temp.gameObject.transform.SetParent(board.transform);
                     temp.gameObject.transform.localPosition = position;
                     temp.gameObject.SetActive(true);

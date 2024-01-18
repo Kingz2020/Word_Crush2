@@ -37,7 +37,7 @@ public class TurnManager: MonoBehaviour {
         turn++;
         _tileBag.RetrieveAllTiles();
         if (currentRound < GetRoundNumber()) {
-            int winningPlayer = 1;
+            int winningPlayer = players[1].playerRoundPoints > players[0].playerRoundPoints ? 1 : 0;
             foreach (var tile in players[winningPlayer].recordedPositions) {
                 tilesForRound.Remove(tile.GetComponent<TileScript>());
             }

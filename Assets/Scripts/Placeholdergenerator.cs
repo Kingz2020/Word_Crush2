@@ -64,6 +64,7 @@ public class PlaceholderGenerator : MonoBehaviour
                     var temp = boardForRound[row, col];
                     temp.gameObject.transform.SetParent(board.transform);
                     temp.gameObject.transform.localPosition = position;
+                    temp.gameObject.GetComponent<RectTransform>().sizeDelta = cellsize;
                     temp.gameObject.SetActive(true);
                 }
             }

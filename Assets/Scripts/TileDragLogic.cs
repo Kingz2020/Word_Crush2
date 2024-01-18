@@ -64,14 +64,14 @@ public class TileDragLogic: MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
                 GetComponent<RectTransform>().sizeDelta = cellSize;
                 
                 // Rename the tile's GameObject with its grid position coordinates
-                gameObject.name = "Tile" + gridY + "X" + gridX + "Y";
+                gameObject.name = "Tile" + gridX + "X" + gridY + "Y";
 
 
                 //boardScript.RecordTilePosition(new Vector2Int(gridX, gridY));
                 // Notify the centralized TilePositionRecorder about the new position
 
                 TileMove move = GetComponent<TileMove>();
-                move.SetTileMove(new Vector2Int(gridY, gridX));
+                move.SetTileMove(new Vector2Int(gridX, gridY));
                 boardScript.RecordTilePosition(move);
 
                 //calculate the points here

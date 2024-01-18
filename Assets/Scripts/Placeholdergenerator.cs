@@ -53,15 +53,15 @@ public class PlaceholderGenerator : MonoBehaviour
     }
 
     public void RegenerateBoard(TileScript[,] boardForRound) {
-        for (int row = 0; row < rows; row++) {
-            for (int col = 0; col < columns; col++) {
+        for (int col = 0; col < columns; col++) {
+            for (int row = 0; row < rows; row++) {
                 // Calculate the position of each placeholder relative to the board, including the offset.
                 Vector3 position = new Vector3(
-                    offset.x + (col * cellsize.x),
-                    -offset.y - (row * cellsize.y),
+                    offset.x + (row * cellsize.x),
+                    -offset.y - (col * cellsize.y),
                     0);
-                if (boardForRound[col, row] != null) {
-                    var temp = boardForRound[col, row];
+                if (boardForRound[row, col] != null) {
+                    var temp = boardForRound[row, col];
                     temp.gameObject.transform.SetParent(board.transform);
                     temp.gameObject.transform.localPosition = position;
                     temp.gameObject.SetActive(true);

@@ -22,7 +22,7 @@ public class DisplayHandler: MonoBehaviour {
     }
 
     void SetPlayerName() {
-        playerName.text = _turnManager.GetActivePlayerName();
+        playerName.text = _turnManager.GetActivePlayerName() + "(" + _turnManager.GetActivePlayerPoints() + ")";
     }
 
     void SetCurrentRound() {

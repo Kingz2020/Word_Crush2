@@ -250,7 +250,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 0, y: 0.5}
   m_AnchoredPosition: {x: 250, y: 409}
-  m_SizeDelta: {x: 200, y: 50}
+  m_SizeDelta: {x: 525, y: 50}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &136235667
 MonoBehaviour:
@@ -2316,6 +2316,7 @@ MonoBehaviour:
   _tileBag: {fileID: 842001871}
   _boardScript: {fileID: 1140604054}
   _generator: {fileID: 1140604056}
+  playerGO: {fileID: 9099653532142717954, guid: 9a4f2926ea32b3a4d954ae02e73d8175, type: 3}
   OnTurnEnd:
     m_PersistentCalls:
       m_Calls: []

@@ -30,6 +30,8 @@ public class BoardScript : MonoBehaviour {
     }
 
     public void StartNewGame() {
+        _turnManager.players[0].ResetPlayer();
+        _turnManager.players[1].ResetPlayer();
         _tileBag.RetrieveAllTiles();
         _turnManager.ResetTurnManager();
         _turnManager.RefillHandTiles(6);
@@ -64,8 +66,9 @@ public class BoardScript : MonoBehaviour {
             valTiles[tileMove.X, tileMove.Y] = tileMove.GetComponent<TileScript>();
         }
 
-        //SetPlayerHandTiles(_turnManager.GetTilesForRound());
+        _turnManager.AddPlayerPoints(CalculateScore(CollectAllWords(AllTilesInSameLine())));
         _turnManager.SetPlayersTurn(recordedPositions);
+        _turnManager.SetPlayersBoard(valTiles);
         recordedPositions.Clear();
         HideAllPointTiles();    
 

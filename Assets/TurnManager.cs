@@ -10,6 +10,7 @@ public class TurnManager: MonoBehaviour {
     [SerializeField] private TileBag _tileBag;
     [SerializeField] private BoardScript _boardScript;
     [SerializeField] private PlaceholderGenerator _generator;
+    [SerializeField] private DisplayHandler _displayHandler;
     public GameObject playerGO;
     public UnityEvent OnTurnEnd;
     public List<Player> players = new List<Player>();
@@ -36,8 +37,11 @@ public class TurnManager: MonoBehaviour {
     public void EndTurn() {
         turn++;
         _tileBag.RetrieveAllTiles();
+
+        
         if (currentRound < GetRoundNumber()) {
             int winningPlayer = players[1].playerRoundPoints > players[0].playerRoundPoints ? 1 : 0;
+        
             foreach (var tile in players[winningPlayer].recordedPositions) {
                 tilesForRound.Remove(tile.GetComponent<TileScript>());
             }
@@ -48,6 +52,9 @@ public class TurnManager: MonoBehaviour {
             boardForRound = (TileScript[,]) players[winningPlayer].lastPlayerBoard.Clone();
             players[winningPlayer].CalculateNewPoints();
         }
+        _displayHandler.score_0.text = players[0].playerTotalPoints.ToString();
+        _displayHandler.score_1.text = players[1].playerTotalPoints.ToString();
+
         _boardScript.placedTilePositions = (TileScript[,]) boardForRound.Clone();
         _boardScript.valTiles = (TileScript[,]) boardForRound.Clone();
         _boardScript.SetPlayerHandTiles(GetTilesForRound());

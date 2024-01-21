@@ -34,7 +34,7 @@ public class BoardScript : MonoBehaviour {
         _turnManager.players[1].ResetPlayer();
         _tileBag.RetrieveAllTiles();
         _turnManager.ResetTurnManager();
-        _turnManager.RefillHandTiles(6);
+        _turnManager.RefillHandTiles(7);
         SetPlayerHandTiles(_turnManager.GetTilesForRound());
         _displayHandler.ResetDisplay();
     }

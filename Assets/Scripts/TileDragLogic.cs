@@ -7,6 +7,7 @@ using UnityEngine.EventSystems;
 public class TileDragLogic: MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler{
     
     private Vector2 initialPosition;
+    private TileMove initialMove = null;
     private Vector2 dropPosition;
     private BoardScript boardScript;
 
@@ -19,11 +20,20 @@ public class TileDragLogic: MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
     }
 
     public void OnBeginDrag(PointerEventData eventData) {
-        TileMove move = GetComponent<TileMove>(); 
+        TileMove move = GetComponent<TileMove>();
+        initialMove = null;
         if (move.onBoard) {
+            initialMove = move;
             boardScript.placedTilePositions[move.X, move.Y] = null;
-        }
+            boardScript.recordedPositions.Remove(move);
+        } 
         initialPosition = transform.position;
+    }
+
+    private void RevertMove() {
+        transform.position = initialPosition;
+        boardScript.placedTilePositions[initialMove.X, initialMove.Y] = initialMove.GetComponent<TileScript>();
+        boardScript.RecordTilePosition(initialMove);
     }
     
     private bool IsDroppedOnBoard(Vector2 dropPosition) {
@@ -86,10 +96,10 @@ public class TileDragLogic: MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
                     tileBag.handTiles.Remove(GetComponent<TileScript>()); 
                 }
             } else {
-                transform.position = initialPosition;
+                RevertMove();
             }
         } else {
-            transform.position = initialPosition;
+            RevertMove();
         }
     }
     

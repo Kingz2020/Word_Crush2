@@ -1,0 +1,1 @@
+- bug when both players have the same score, only one player gets points

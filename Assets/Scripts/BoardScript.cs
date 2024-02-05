@@ -146,7 +146,7 @@ public class BoardScript : MonoBehaviour {
             tempBoard[tempTile.X, tempTile.Y] = tempTile.GetComponent<TileScript>();
         }
 
-        if (orientation == TilePlacement.SingleTile) {
+        /*if (orientation == TilePlacement.SingleTile) {
             var singleTile = GetRecordedPositions()[0];
             if( tempBoard[singleTile.X - 1, singleTile.Y] == null
                 && tempBoard[singleTile.X, singleTile.Y - 1] == null
@@ -157,20 +157,20 @@ public class BoardScript : MonoBehaviour {
                 wordList.Add(tempList);
                 return wordList;
             }
-        }
+        }*/
 
         foreach (var tempTile in GetRecordedPositions()) {
             if (orientation == TilePlacement.Horizontal || orientation == TilePlacement.SingleTile) {
-                if (tempBoard[tempTile.X - 1, tempTile.Y] != null) {
+                if (tempTile.X > 0 && tempBoard[tempTile.X - 1, tempTile.Y] != null) {
                     wordList.Add(GetWordFromBoard(TilePlacement.Horizontal, tempBoard, GetFirstLetterIndex(TilePlacement.Horizontal, tempBoard, tempTile.X, tempTile.Y), tempTile.Y));
-                } else if (tempBoard[tempTile.X + 1, tempTile.Y] != null) {
+                } else if (tempTile.X < gridSizeX - 1 && tempBoard[tempTile.X + 1, tempTile.Y] != null) {
                     wordList.Add(GetWordFromBoard(TilePlacement.Horizontal, tempBoard, tempTile.X, tempTile.Y));
                 }
             }
             if (orientation == TilePlacement.Vertical || orientation == TilePlacement.SingleTile) {
-                if (tempBoard[tempTile.X, tempTile.Y - 1] != null) {
+                if (tempTile.Y > 0 && tempBoard[tempTile.X, tempTile.Y - 1] != null) {
                     wordList.Add(GetWordFromBoard(TilePlacement.Vertical, tempBoard, tempTile.X, GetFirstLetterIndex(TilePlacement.Vertical, tempBoard, tempTile.X, tempTile.Y)));
-                } else if (tempBoard[tempTile.X, tempTile.Y + 1] != null) {
+                } else if (tempTile.Y < gridSizeY - 1 && tempBoard[tempTile.X, tempTile.Y + 1] != null) {
                     wordList.Add(GetWordFromBoard(TilePlacement.Vertical, tempBoard, tempTile.X, tempTile.Y));
                 }
             }
@@ -179,22 +179,22 @@ public class BoardScript : MonoBehaviour {
         TileMove placedTile = GetRecordedPositions()[0];
         if (orientation == TilePlacement.Horizontal)
         {
-            if (tempBoard[placedTile.X, placedTile.Y - 1] != null)
+            if (placedTile.Y > 0 && tempBoard[placedTile.X, placedTile.Y - 1] != null)
             {
                 wordList.Add(GetWordFromBoard(TilePlacement.Vertical, tempBoard, placedTile.X, GetFirstLetterIndex(TilePlacement.Vertical, tempBoard, placedTile.X, placedTile.Y)));
             }
-            else if (tempBoard[placedTile.X, placedTile.Y + 1] != null)
+            else if (placedTile.Y < gridSizeY - 1 && tempBoard[placedTile.X, placedTile.Y + 1] != null)
             {
                 wordList.Add(GetWordFromBoard(TilePlacement.Vertical, tempBoard, placedTile.X, placedTile.Y));
             }
         }
         if (orientation == TilePlacement.Vertical)
         {
-            if (tempBoard[placedTile.X - 1, placedTile.Y] != null)
+            if (placedTile.X > 0 && tempBoard[placedTile.X - 1, placedTile.Y] != null)
             {
                 wordList.Add(GetWordFromBoard(TilePlacement.Horizontal, tempBoard, GetFirstLetterIndex(TilePlacement.Horizontal, tempBoard, placedTile.X, placedTile.Y), placedTile.Y));
             }
-            else if (tempBoard[placedTile.X + 1, placedTile.Y] != null)
+            else if (placedTile.X < gridSizeX - 1 && tempBoard[placedTile.X + 1, placedTile.Y] != null)
             {
                 wordList.Add(GetWordFromBoard(TilePlacement.Horizontal, tempBoard, placedTile.X, placedTile.Y));
             }

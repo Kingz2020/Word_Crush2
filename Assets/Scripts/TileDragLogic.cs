@@ -65,7 +65,8 @@ public class TileDragLogic: MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
                 Vector2 dropPositionInHandTiles = handTilesRect.InverseTransformPoint(dropPosition);
 
                 // Check if the point is within the bounds of the handTileHolder
-                return RectTransformUtility.RectangleContainsScreenPoint(handTilesRect, dropPositionInHandTiles);
+                //return RectTransformUtility.RectangleContainsScreenPoint(handTilesRect, dropPositionInHandTiles);
+                return RectTransformUtility.RectangleContainsScreenPoint(handTilesRect, dropPosition);
             }
         }
         return false;
@@ -84,8 +85,8 @@ public class TileDragLogic: MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
             int gridSizeX = 15; // Define the grid size in the X-axis (assuming it's 15).
             int gridSizeY = 15; // Define the grid size in the Y-axis (assuming it's 15).
 
-            int gridX =  Mathf.Clamp((int)(localPosition.x - 50) / (int) cellSize.x, 0, gridSizeX - 1);
-            int gridY =  Mathf.Clamp((int)(localPosition.y * - 1 - 50 ) / (int) cellSize.y, 0, gridSizeY - 1);
+            int gridX = Mathf.Clamp((int)(localPosition.x - 50) / (int)cellSize.x, 0, gridSizeX - 1);
+            int gridY = Mathf.Clamp((int)(localPosition.y * -1 - 50) / (int)cellSize.y, 0, gridSizeY - 1);
 
             Debug.Log("Grid X: " + gridX);
             Debug.Log("Grid Y: " + gridY);
@@ -118,53 +119,42 @@ public class TileDragLogic: MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
                     // Remove the tile from the hand when it's placed on the board
                     tileBag.handTiles.Remove(GetComponent<TileScript>());
                 }
-            } else if (IsDroppedOnHandTiles(eventData.position))
+            }
+        }
+        else if (IsDroppedOnHandTiles(eventData.position))
+        {
+            // Get this tile and other tile
+            TileScript thisTile = GetComponent<TileScript>();
+            Vector2 dropPositionInHandTiles = boardScript.handTileHolder.GetComponent<RectTransform>().InverseTransformPoint(dropPosition);
+            TileScript otherTile = FindClosestTile(dropPositionInHandTiles);
+
+            if (otherTile != null && thisTile != otherTile)
             {
-                // Replace existing swapping logic with revised approach:
+                // Temporary parent for thisTile (optional)
+                Transform thisTileParent = null;
 
-                TileScript thisTile = GetComponent<TileScript>();
-                Vector2 dropPositionInHandTiles = boardScript.handTileHolder.GetComponent<RectTransform>().InverseTransformPoint(dropPosition);
-
-                TileScript otherTile = FindClosestTile(dropPositionInHandTiles);
-
-                if (otherTile != null && thisTile != otherTile)
+                // Find thisTile and otherTile within children
+                Transform previousChild = null;
+                foreach (Transform child in boardScript.handTileHolder.transform)
                 {
-                    // Use a temporary variable to hold the first tile's parent
-                    Transform thisTileParent = thisTile.transform.parent;
-
-                    // Update positions visually (already implemented in your code)
-                    transform.SetParent(otherTile.transform.parent);
-                    otherTile.transform.SetParent(thisTileParent);
-
-                    // Iterate through handTileHolder children to find indices
-                    int thisTileIndex = -1;
-                    int otherTileIndex = -1;
-                    for (int i = 0; i < boardScript.handTileHolder.transform.childCount; i++)
+                    if (child == thisTile)
                     {
-                        Transform child = boardScript.handTileHolder.transform.GetChild(i);
-                        TileScript tile = child.GetComponent<TileScript>();
-
-                        if (tile == thisTile)
-                        {
-                            thisTileIndex = i;
-                        }
-                        else if (tile == otherTile)
-                        {
-                            otherTileIndex = i;
-                        }
-
-                        if (thisTileIndex >= 0 && otherTileIndex >= 0)
-                        {
-                            break;
-                        }
+                        thisTileParent = child.parent; // Store parent temporarily
                     }
-                    if (thisTileIndex >= 0 && otherTileIndex >= 0)
+                    else if (child == otherTile)
                     {
-                        // Swap positions within handTileHolder based on stored indices
-                        boardScript.handTileHolder.transform.GetChild(thisTileIndex).SetSiblingIndex(otherTileIndex);
-                        boardScript.handTileHolder.transform.GetChild(otherTileIndex).SetSiblingIndex(thisTileIndex);                 
+                        break; // Found both tiles, stop iterating
                     }
+                    previousChild = child;
                 }
+
+                // Swap positions visually
+                if (thisTileParent != null)
+                {
+                    thisTile.transform.SetParent(otherTile.transform.parent);
+                    otherTile.transform.SetParent(thisTileParent);
+                }
+
             }
         }
         else {
@@ -178,12 +168,12 @@ public class TileDragLogic: MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
     {
         float closestDistance = float.MaxValue;
         TileScript closestTile = null;
-
+        TileScript grabbedLetter = this.GetComponent<TileScript>();
         // Iterate through children of handTileHolder
         foreach (Transform child in boardScript.handTileHolder.transform)
         {
             TileScript tile = child.GetComponent<TileScript>();
-            if (tile != null && tile != this) // Exclude current tile
+            if (tile != null && tile != grabbedLetter) // Exclude current tile
             {
                 Vector2 tilePosition = child.localPosition;
                 float distance = Vector2.Distance(position, tilePosition);

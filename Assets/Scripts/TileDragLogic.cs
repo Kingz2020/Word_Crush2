@@ -10,6 +10,7 @@ public class TileDragLogic: MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
     private TileMove initialMove = null;
     private Vector2 dropPosition;
     private BoardScript boardScript;
+    //private HandTiles handTilesScript;
 
     private void Start() {
         boardScript = GameObject.Find("Board").GetComponent<BoardScript>();
@@ -30,10 +31,13 @@ public class TileDragLogic: MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
         initialPosition = transform.position;
     }
 
-    private void RevertMove() {
+    private void RevertMove()
+    {
+        if (initialMove != null) { 
         transform.position = initialPosition;
         boardScript.placedTilePositions[initialMove.X, initialMove.Y] = initialMove.GetComponent<TileScript>();
         boardScript.RecordTilePosition(initialMove);
+    }
     }
     
     private bool IsDroppedOnBoard(Vector2 dropPosition) {
@@ -45,6 +49,28 @@ public class TileDragLogic: MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
         }
         return false;
     }
+
+    public bool IsDroppedOnHandTiles(Vector2 dropPosition)
+    {
+        // Check if a handTileHolder object exists
+        if (boardScript.handTileHolder != null)
+        {
+            // Get the RectTransform component of the handTileHolder
+            RectTransform handTilesRect = boardScript.handTileHolder.GetComponent<RectTransform>();
+
+            // Ensure the RectTransform exists
+            if (handTilesRect != null)
+            {
+                // Convert the screen point to a point relative to the handTileHolder RectTransform
+                Vector2 dropPositionInHandTiles = handTilesRect.InverseTransformPoint(dropPosition);
+
+                // Check if the point is within the bounds of the handTileHolder
+                return RectTransformUtility.RectangleContainsScreenPoint(handTilesRect, dropPositionInHandTiles);
+            }
+        }
+        return false;
+    }
+
 
     public void OnEndDrag(PointerEventData eventData) {
         if (IsDroppedOnBoard(eventData.position)) {
@@ -72,13 +98,10 @@ public class TileDragLogic: MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
                 transform.SetParent(boardScript.transform);
                 transform.localPosition = localPosition;
                 GetComponent<RectTransform>().sizeDelta = cellSize;
-                
+
                 // Rename the tile's GameObject with its grid position coordinates
                 gameObject.name = "Tile" + gridX + "X" + gridY + "Y";
 
-
-                //boardScript.RecordTilePosition(new Vector2Int(gridX, gridY));
-                // Notify the centralized TilePositionRecorder about the new position
 
                 TileMove move = GetComponent<TileMove>();
                 move.SetTileMove(new Vector2Int(gridX, gridY));
@@ -93,16 +116,90 @@ public class TileDragLogic: MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
                 TileBag tileBag = FindObjectOfType<TileBag>();
                 if (tileBag != null) {
                     // Remove the tile from the hand when it's placed on the board
-                    tileBag.handTiles.Remove(GetComponent<TileScript>()); 
+                    tileBag.handTiles.Remove(GetComponent<TileScript>());
                 }
-            } else {
+            } else if (IsDroppedOnHandTiles(eventData.position))
+            {
+                // Replace existing swapping logic with revised approach:
+
+                TileScript thisTile = GetComponent<TileScript>();
+                Vector2 dropPositionInHandTiles = boardScript.handTileHolder.GetComponent<RectTransform>().InverseTransformPoint(dropPosition);
+
+                TileScript otherTile = FindClosestTile(dropPositionInHandTiles);
+
+                if (otherTile != null && thisTile != otherTile)
+                {
+                    // Use a temporary variable to hold the first tile's parent
+                    Transform thisTileParent = thisTile.transform.parent;
+
+                    // Update positions visually (already implemented in your code)
+                    transform.SetParent(otherTile.transform.parent);
+                    otherTile.transform.SetParent(thisTileParent);
+
+                    // Iterate through handTileHolder children to find indices
+                    int thisTileIndex = -1;
+                    int otherTileIndex = -1;
+                    for (int i = 0; i < boardScript.handTileHolder.transform.childCount; i++)
+                    {
+                        Transform child = boardScript.handTileHolder.transform.GetChild(i);
+                        TileScript tile = child.GetComponent<TileScript>();
+
+                        if (tile == thisTile)
+                        {
+                            thisTileIndex = i;
+                        }
+                        else if (tile == otherTile)
+                        {
+                            otherTileIndex = i;
+                        }
+
+                        if (thisTileIndex >= 0 && otherTileIndex >= 0)
+                        {
+                            break;
+                        }
+                    }
+                    if (thisTileIndex >= 0 && otherTileIndex >= 0)
+                    {
+                        // Swap positions within handTileHolder based on stored indices
+                        boardScript.handTileHolder.transform.GetChild(thisTileIndex).SetSiblingIndex(otherTileIndex);
+                        boardScript.handTileHolder.transform.GetChild(otherTileIndex).SetSiblingIndex(thisTileIndex);                 
+                    }
+                }
+            }
+        }
+        else {
                 RevertMove();
             }
-        } else {
-            RevertMove();
-        }
+
     }
-    
+
+    // Helper function to find the closest tile to a given position
+    private TileScript FindClosestTile(Vector2 position)
+    {
+        float closestDistance = float.MaxValue;
+        TileScript closestTile = null;
+
+        // Iterate through children of handTileHolder
+        foreach (Transform child in boardScript.handTileHolder.transform)
+        {
+            TileScript tile = child.GetComponent<TileScript>();
+            if (tile != null && tile != this) // Exclude current tile
+            {
+                Vector2 tilePosition = child.localPosition;
+                float distance = Vector2.Distance(position, tilePosition);
+
+                if (distance < closestDistance)
+                {
+                    closestDistance = distance;
+                    closestTile = tile;
+                }
+            }
+        }
+
+        return closestTile;
+    }
+
+
     public Vector2Int GetGridPosition()
     {
         // Get the cell size of your grid

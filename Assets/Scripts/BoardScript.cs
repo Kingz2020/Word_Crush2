@@ -241,5 +241,7 @@ public class BoardScript : MonoBehaviour {
         }
         return totalScore;
     }
+
+
 }
 

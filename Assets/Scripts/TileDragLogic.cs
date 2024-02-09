@@ -125,36 +125,14 @@ public class TileDragLogic: MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
         {
             // Get this tile and other tile
             TileScript thisTile = GetComponent<TileScript>();
-            Vector2 dropPositionInHandTiles = boardScript.handTileHolder.GetComponent<RectTransform>().InverseTransformPoint(dropPosition);
-            TileScript otherTile = FindClosestTile(dropPositionInHandTiles);
+            TileScript otherTile = FindClosestTile(thisTile.transform.localPosition);
 
-            if (otherTile != null && thisTile != otherTile)
-            {
-                // Temporary parent for thisTile (optional)
-                Transform thisTileParent = null;
-
-                // Find thisTile and otherTile within children
-                Transform previousChild = null;
-                foreach (Transform child in boardScript.handTileHolder.transform)
-                {
-                    if (child == thisTile)
-                    {
-                        thisTileParent = child.parent; // Store parent temporarily
-                    }
-                    else if (child == otherTile)
-                    {
-                        break; // Found both tiles, stop iterating
-                    }
-                    previousChild = child;
-                }
-
+            if (otherTile != null && thisTile != otherTile) {
                 // Swap positions visually
-                if (thisTileParent != null)
-                {
-                    thisTile.transform.SetParent(otherTile.transform.parent);
-                    otherTile.transform.SetParent(thisTileParent);
-                }
-
+                int thisTileIndex = thisTile.transform.GetSiblingIndex();
+                Debug.LogFormat("ThisTile {0}, otherTile {1}", thisTileIndex, otherTile.transform.GetSiblingIndex());
+                thisTile.transform.SetSiblingIndex(otherTile.transform.GetSiblingIndex());
+                otherTile.transform.SetSiblingIndex(thisTileIndex);
             }
         }
         else {

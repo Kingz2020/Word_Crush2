@@ -1,4 +1,2 @@
 - bug when both players have the same score, only one player gets points
-- when tile is picked up and placed on hand tile the hadtile freezes -> nullrefexception
 - placing a tile on the edge, for example [3,15] say, seems to cause a crash.
-- placing a tile ona annother tile laid on the board causes a crash.

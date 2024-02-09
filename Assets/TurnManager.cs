@@ -40,26 +40,63 @@ public class TurnManager: MonoBehaviour {
 
         
         if (currentRound < GetRoundNumber()) {
-            int winningPlayer = players[1].playerRoundPoints > players[0].playerRoundPoints ? 1 : 0;
-        
-            foreach (var tile in players[winningPlayer].recordedPositions) {
-                tilesForRound.Remove(tile.GetComponent<TileScript>());
-            }
-            RefillHandTiles(players[winningPlayer].recordedPositions.Count);
-            currentRound = GetRoundNumber();
-            players[0].recordedPositions.Clear();
-            players[1].recordedPositions.Clear();
-            boardForRound = (TileScript[,]) players[winningPlayer].lastPlayerBoard.Clone();
-            players[winningPlayer].CalculateNewPoints();
-        }
-        _displayHandler.score_0.text = players[0].playerTotalPoints.ToString();
-        _displayHandler.score_1.text = players[1].playerTotalPoints.ToString();
+            int winningPlayer;
 
-        _boardScript.placedTilePositions = (TileScript[,]) boardForRound.Clone();
-        _boardScript.valTiles = (TileScript[,]) boardForRound.Clone();
-        _boardScript.SetPlayerHandTiles(GetTilesForRound());
-        _generator.RegenerateBoard(boardForRound);
-        OnTurnEnd?.Invoke();
+            if (players[1].playerRoundPoints > players[0].playerRoundPoints)
+            {
+                winningPlayer = 1;
+                foreach (var tile in players[winningPlayer].recordedPositions)
+                {
+                    tilesForRound.Remove(tile.GetComponent<TileScript>());
+                }
+                RefillHandTiles(players[winningPlayer].recordedPositions.Count);
+                currentRound = GetRoundNumber();
+                players[0].recordedPositions.Clear();
+                players[1].recordedPositions.Clear();
+                boardForRound = (TileScript[,])players[winningPlayer].lastPlayerBoard.Clone();
+                players[winningPlayer].CalculateNewPoints();
+            }
+            else if (players[1].playerRoundPoints < players[0].playerRoundPoints)
+            {
+                winningPlayer = 0;
+                foreach (var tile in players[winningPlayer].recordedPositions)
+                {
+                    tilesForRound.Remove(tile.GetComponent<TileScript>());
+                }
+                RefillHandTiles(players[winningPlayer].recordedPositions.Count);
+                currentRound = GetRoundNumber();
+                players[0].recordedPositions.Clear();
+                players[1].recordedPositions.Clear();
+                boardForRound = (TileScript[,])players[winningPlayer].lastPlayerBoard.Clone();
+                players[winningPlayer].CalculateNewPoints();
+            }
+            else
+            {
+                // Both players have the same points, consider them both winners
+                winningPlayer = -1; // Use a sentinel value to indicate both winner
+                // use the first player to have those points                
+                foreach (var tile in players[0].recordedPositions)
+                {
+                    tilesForRound.Remove(tile.GetComponent<TileScript>());
+                }
+                RefillHandTiles(players[0].recordedPositions.Count);
+                currentRound = GetRoundNumber();
+                players[0].recordedPositions.Clear();
+                players[1].recordedPositions.Clear();
+                boardForRound = (TileScript[,])players[0].lastPlayerBoard.Clone();
+                players[0].CalculateNewPoints();
+                players[1].CalculateNewPoints();
+            }
+            
+        }
+                _displayHandler.score_0.text = players[0].playerTotalPoints.ToString();
+                _displayHandler.score_1.text = players[1].playerTotalPoints.ToString();
+                _boardScript.placedTilePositions = (TileScript[,])boardForRound.Clone();
+                _boardScript.valTiles = (TileScript[,])boardForRound.Clone();
+                _boardScript.SetPlayerHandTiles(GetTilesForRound());
+                _generator.RegenerateBoard(boardForRound);
+                OnTurnEnd?.Invoke();
+          
     }
 
     public void SetPlayersTurn(List<TileMove> moves) {

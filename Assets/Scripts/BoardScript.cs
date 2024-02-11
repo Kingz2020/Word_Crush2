@@ -146,31 +146,18 @@ public class BoardScript : MonoBehaviour {
             tempBoard[tempTile.X, tempTile.Y] = tempTile.GetComponent<TileScript>();
         }
 
-        /*if (orientation == TilePlacement.SingleTile) {
-            var singleTile = GetRecordedPositions()[0];
-            if( tempBoard[singleTile.X - 1, singleTile.Y] == null
-                && tempBoard[singleTile.X, singleTile.Y - 1] == null
-                && tempBoard[singleTile.X + 1, singleTile.Y] == null
-                && tempBoard[singleTile.X, singleTile.Y + 1] == null) {
-                List<TileScript> tempList = new List<TileScript>();
-                tempList.Add(singleTile.GetComponent<TileScript>());
-                wordList.Add(tempList);
-                return wordList;
-            }
-        }*/
-
         foreach (var tempTile in GetRecordedPositions()) {
             if (orientation == TilePlacement.Horizontal || orientation == TilePlacement.SingleTile) {
                 if (tempTile.X > 0 && tempBoard[tempTile.X - 1, tempTile.Y] != null) {
                     wordList.Add(GetWordFromBoard(TilePlacement.Horizontal, tempBoard, GetFirstLetterIndex(TilePlacement.Horizontal, tempBoard, tempTile.X, tempTile.Y), tempTile.Y));
-                } else if (tempTile.X < gridSizeX - 1 && tempBoard[tempTile.X + 1, tempTile.Y] != null) {
+                } else if (tempTile.X < gridSizeX - 1 && tempBoard[tempTile.X + 1, tempTile.Y] != null & tempTile.X<14) {
                     wordList.Add(GetWordFromBoard(TilePlacement.Horizontal, tempBoard, tempTile.X, tempTile.Y));
                 }
             }
             if (orientation == TilePlacement.Vertical || orientation == TilePlacement.SingleTile) {
                 if (tempTile.Y > 0 && tempBoard[tempTile.X, tempTile.Y - 1] != null) {
                     wordList.Add(GetWordFromBoard(TilePlacement.Vertical, tempBoard, tempTile.X, GetFirstLetterIndex(TilePlacement.Vertical, tempBoard, tempTile.X, tempTile.Y)));
-                } else if (tempTile.Y < gridSizeY - 1 && tempBoard[tempTile.X, tempTile.Y + 1] != null) {
+                } else if (tempTile.Y < gridSizeY - 1 && tempBoard[tempTile.X, tempTile.Y + 1] != null & tempTile.Y < 14) {
                     wordList.Add(GetWordFromBoard(TilePlacement.Vertical, tempBoard, tempTile.X, tempTile.Y));
                 }
             }
@@ -183,7 +170,7 @@ public class BoardScript : MonoBehaviour {
             {
                 wordList.Add(GetWordFromBoard(TilePlacement.Vertical, tempBoard, placedTile.X, GetFirstLetterIndex(TilePlacement.Vertical, tempBoard, placedTile.X, placedTile.Y)));
             }
-            else if (placedTile.Y < gridSizeY - 1 && tempBoard[placedTile.X, placedTile.Y + 1] != null)
+            else if (placedTile.Y < gridSizeY - 1 && tempBoard[placedTile.X, placedTile.Y + 1] != null & placedTile.Y < 14)
             {
                 wordList.Add(GetWordFromBoard(TilePlacement.Vertical, tempBoard, placedTile.X, placedTile.Y));
             }
@@ -194,7 +181,7 @@ public class BoardScript : MonoBehaviour {
             {
                 wordList.Add(GetWordFromBoard(TilePlacement.Horizontal, tempBoard, GetFirstLetterIndex(TilePlacement.Horizontal, tempBoard, placedTile.X, placedTile.Y), placedTile.Y));
             }
-            else if (placedTile.X < gridSizeX - 1 && tempBoard[placedTile.X + 1, placedTile.Y] != null)
+            else if (placedTile.X < gridSizeX - 1 && tempBoard[placedTile.X + 1, placedTile.Y] != null & placedTile.X < 14)
             {
                 wordList.Add(GetWordFromBoard(TilePlacement.Horizontal, tempBoard, placedTile.X, placedTile.Y));
             }
@@ -213,10 +200,14 @@ public class BoardScript : MonoBehaviour {
 
     public List<TileScript> GetWordFromBoard(TilePlacement orientation, TileScript[,] board, int row, int col) {
         List<TileScript> newWord = new List<TileScript>();
-        while (board[row, col] != null) {
+        while (board[row, col] != null ) {
             newWord.Add(board[row, col]);
-            if (orientation == TilePlacement.Horizontal) row++;
-            if (orientation == TilePlacement.Vertical) col++;
+
+            if (row < 14 && col < 14) { 
+                if (orientation == TilePlacement.Horizontal) row++;
+                if (orientation == TilePlacement.Vertical) col++;
+            }
+            else { return newWord; }
         }
         return newWord;
     }

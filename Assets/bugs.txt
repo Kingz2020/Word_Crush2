@@ -1,2 +1,15 @@
-- bug when both players have the same score, only one player gets points
-- placing a tile on the edge, for example [3,15] say, seems to cause a crash.
+Things to do:
+
+1. Have the game restricted to 3 rounds.
+
+2. Show the number of rounds left as a countdown->last round-> winner is...
+
+3. Restrict a turn by time -> show the time countdown
+
+4. Game Over summary -> highest points per round> Average score per player
+
+5. Restart Game flow
+
+6. Players input name
+
+7. AI Player

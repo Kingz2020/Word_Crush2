@@ -11,6 +11,8 @@ public class DisplayHandler: MonoBehaviour {
     [SerializeField] private TextMeshProUGUI currentRound;
     [SerializeField] public TextMeshProUGUI score_0;
     [SerializeField] public TextMeshProUGUI score_1;
+    [SerializeField] public TextMeshProUGUI roundsLeft;
+    [SerializeField] public TextMeshProUGUI timerText;
 
     private void Start() {
         _turnManager.OnTurnEnd.AddListener(SetPlayerName);

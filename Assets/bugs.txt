@@ -1,15 +1,15 @@
 Things to do:
 
-1. Have the game restricted to 3 rounds.
+- 1. Have the game restricted to 3 rounds.
 
-2. Show the number of rounds left as a countdown->last round-> winner is...
-
-3. Restrict a turn by time -> show the time countdown
+- 3. Restrict a turn by time -> show the time countdown
 
 4. Game Over summary -> highest points per round> Average score per player
 
 5. Restart Game flow
 
 6. Players input name
+
+2.Show the number of rounds left as a countdown->last round-> winner is...
 
 7. AI Player

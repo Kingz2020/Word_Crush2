@@ -31,7 +31,7 @@ public class DebugFunctions: MonoBehaviour {
             Debug.Log("Letter: " + tile.GetLetter() + ", Points: " + tile.GetPoints());
         }
     }
-
+   
     public void NewGame() {
         boardScript.StartNewGame();
     }

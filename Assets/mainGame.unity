@@ -2806,6 +2806,7 @@ MonoBehaviour:
   currentScore: 0
   gridSizeX: 15
   gridSizeY: 15
+  NewGameSet: 0
 --- !u!114 &1140604056
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2860,6 +2861,7 @@ MonoBehaviour:
   players: []
   turn: 0
   tilesForRound: []
+  timeRemaining: 0
 --- !u!1 &1234429363
 GameObject:
   m_ObjectHideFlags: 0
@@ -3759,7 +3761,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 60
+  m_text: 20
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}

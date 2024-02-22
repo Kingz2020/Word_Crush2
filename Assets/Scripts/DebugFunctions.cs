@@ -6,6 +6,7 @@ public class DebugFunctions: MonoBehaviour {
     [SerializeField] private BoardScript boardScript;
     [SerializeField] private TileBag tileBag;
     
+    
     public void DisplayRecordedPositions() {
         foreach (var tileMove in boardScript.recordedPositions) {
             Debug.Log("Recorded Position: " + tileMove.X + ", " + tileMove.Y);
@@ -33,6 +34,7 @@ public class DebugFunctions: MonoBehaviour {
     }
    
     public void NewGame() {
+
         boardScript.StartNewGame();
     }
 

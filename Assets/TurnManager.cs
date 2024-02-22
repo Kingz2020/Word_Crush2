@@ -23,7 +23,7 @@ public class TurnManager: MonoBehaviour {
     public float turnTime { get; private set; } = 20f; // Property with default value
 
     //public float turnTime = 60f; // Duration of a turn in seconds
-    private float timeRemaining;
+    public float timeRemaining;
     //private float timeRemaining = turnTime; // Time left in the current turn
 
     private void Awake() {
@@ -34,16 +34,17 @@ public class TurnManager: MonoBehaviour {
         timeRemaining = turnTime;
     }
     void Update()
-    {
-        UpdateTimer(); // Update timer every frame
+    {   if (_boardScript.NewGameSet)
+        {
+            UpdateTimer(); // Update timer every frame
+        }
     }
     public void ResetTurnManager() {
         turn = 0;
         currentRound = 1;
-        //roundsLeft = 3;
         boardForRound = new TileScript[15, 15];
         tilesForRound = new List<TileScript>();
-        timeRemaining = turnTime; // Reset timer for the first turn
+        //timeRemaining = turnTime; // Reset timer for the first turn
     }
 
     public void EndTurn() {
@@ -101,15 +102,15 @@ public class TurnManager: MonoBehaviour {
             }
             
         }
-                _displayHandler.score_0.text = players[0].playerTotalPoints.ToString();
-                _displayHandler.score_1.text = players[1].playerTotalPoints.ToString();
-                //roundsLeft = roundsLeft - currentRound;
-                _displayHandler.roundsLeft.text = currentRound.ToString();
-                _boardScript.placedTilePositions = (TileScript[,])boardForRound.Clone();
-                _boardScript.valTiles = (TileScript[,])boardForRound.Clone();
-                _boardScript.SetPlayerHandTiles(GetTilesForRound());
-                _generator.RegenerateBoard(boardForRound);
-                OnTurnEnd?.Invoke();
+
+        _displayHandler.score_0.text = players[0].playerTotalPoints.ToString();
+        _displayHandler.score_1.text = players[1].playerTotalPoints.ToString();
+        _displayHandler.roundsLeft.text = currentRound.ToString();
+        _boardScript.placedTilePositions = (TileScript[,])boardForRound.Clone();
+        _boardScript.valTiles = (TileScript[,])boardForRound.Clone();
+        _boardScript.SetPlayerHandTiles(GetTilesForRound());
+        _generator.RegenerateBoard(boardForRound);
+        OnTurnEnd?.Invoke();
 
         // Start the timer for the next turn
         timeRemaining = turnTime;
@@ -117,15 +118,14 @@ public class TurnManager: MonoBehaviour {
 
     }
 
-    void UpdateTimer()
+    public void UpdateTimer()
     {
         timeRemaining -= Time.deltaTime;
         // Display remaining time on UI (replace with your UI element)
         _displayHandler.timerText.text = timeRemaining.ToString("0");
 
         // If time runs out, end the turn
-        if (timeRemaining <= 0)
-        {
+        if (timeRemaining <= 0) {
             EndTurn(); // Forcefully end the turn
         }
     }

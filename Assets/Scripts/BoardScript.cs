@@ -22,7 +22,8 @@ public class BoardScript : MonoBehaviour {
     public int currentScore;
     public int gridSizeX = 15; // Set your grid size X dimension here (e.g., 15).
     public int gridSizeY = 15; // Set your grid size Y dimension here (e.g., 15).
-    
+    public bool NewGameSet = false;
+
     void OnDrawGizmos() {
         // Draw a yellow sphere at the transform's position
         Gizmos.color = Color.yellow;
@@ -37,15 +38,12 @@ public class BoardScript : MonoBehaviour {
         _turnManager.RefillHandTiles(7);
         SetPlayerHandTiles(_turnManager.GetTilesForRound());
         _displayHandler.ResetDisplay();
+        _turnManager.timeRemaining = _turnManager.turnTime; // Reset timer for the first turn
+        _turnManager.UpdateTimer();
+        NewGameSet = true;
     }
 
     public void EndTurn() {
-        // Clear the validated tiles list for a new turn
-        // Validate the board for valid placement
-        // Validate that all tiles form correct words
-
-        // Populate the validated tiles list with recorded positions
-        //List<TileMove> recordedPositions = boardScript.GetRecordedPositions();
 
         foreach (List<TileScript> word in CollectAllWords(AllTilesInSameLine())) {
             string assembledWord = String.Empty;
@@ -71,15 +69,6 @@ public class BoardScript : MonoBehaviour {
         _turnManager.SetPlayersBoard(valTiles);
         recordedPositions.Clear();
         HideAllPointTiles();    
-
-        // Update points
-        // ... Implement logic to update player's points
-
-        // Transfer moves to board array and/or history, chat, and clear the list
-        // ... Implement logic to transfer moves to relevant data structures and clear the list
-
-        // Pass turn to other player
-        // ... Implement logic to pass turn to the next player
         _turnManager.EndTurn();
     }
 

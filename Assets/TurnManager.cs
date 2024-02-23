@@ -62,7 +62,7 @@ public class TurnManager: MonoBehaviour {
                 {
                     tilesForRound.Remove(tile.GetComponent<TileScript>());
                 }
-                RefillHandTiles(players[winningPlayer].recordedPositions.Count);
+                RefillHandTiles(players[winningPlayer].recordedPositions.Count);    
                 currentRound = GetRoundNumber();
                 players[0].recordedPositions.Clear();
                 players[1].recordedPositions.Clear();
@@ -100,9 +100,7 @@ public class TurnManager: MonoBehaviour {
                 players[0].CalculateNewPoints();
                 players[1].CalculateNewPoints();
             }
-            
         }
-
         _displayHandler.score_0.text = players[0].playerTotalPoints.ToString();
         _displayHandler.score_1.text = players[1].playerTotalPoints.ToString();
         _displayHandler.roundsLeft.text = currentRound.ToString();
@@ -125,8 +123,13 @@ public class TurnManager: MonoBehaviour {
         _displayHandler.timerText.text = timeRemaining.ToString("0");
 
         // If time runs out, end the turn
-        if (timeRemaining <= 0) {
+        if (timeRemaining <= 0)
+        {
             EndTurn(); // Forcefully end the turn
+            foreach (Player player in players)
+            {
+                player.recordedPositions.Clear();
+            }
         }
     }
 

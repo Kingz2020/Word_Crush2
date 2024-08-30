@@ -51,7 +51,7 @@ public class TurnManager: MonoBehaviour {
         turn++;
         _tileBag.RetrieveAllTiles();
 
-        
+
         if (currentRound < GetRoundNumber()) {
             int winningPlayer;
 
@@ -142,13 +142,6 @@ public class TurnManager: MonoBehaviour {
     }
 
     public int GetRoundNumber() {
-        // Calculate total rounds based on players
-        //int totalRounds = Mathf.CeilToInt((float)players.Count);
-
-        // Calculate rounds left based on total rounds and current round
-        //roundsLeft = roundsLeft - currentRound;
-
-        //return currentRound; // Return actual round number
 
 
         return turn / players.Count + 1;

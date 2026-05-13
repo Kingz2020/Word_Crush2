@@ -23,12 +23,9 @@ public class PlaceholderGenerator : MonoBehaviour
         GeneratePlaceholders();
     }
 
-    void GeneratePlaceholders()
-    {
-        for (int row = 0; row < rows; row++)
-        {
-            for (int col = 0; col < columns; col++)
-            {
+    void GeneratePlaceholders() {
+        for (int row = 0; row < rows; row++) {
+            for (int col = 0; col < columns; col++) {
                 // Calculate the position of each placeholder relative to the board, including the offset.
                 Vector3 position = new Vector3(
                      offset.x + (col * cellsize.x),
@@ -43,7 +40,33 @@ public class PlaceholderGenerator : MonoBehaviour
                 //placeholder.transform.SetParent(board.transform);
                 placeholder.transform.localPosition = position;
                 placeholder.transform.localEulerAngles = new Vector3();
+                // Check for the special case of [7, 7] and change the color of the blankoPrefab.
+                if (row == 7 && col == 7)
+                {
+                    placeholder.GetComponentInChildren<Image>().color = Color.cyan;
+                }
                 placeholder.GetComponent<RectTransform>().sizeDelta = cellsize;
+                
+               
+            }
+        }
+    }
+
+    public void RegenerateBoard(TileScript[,] boardForRound) {
+        for (int col = 0; col < columns; col++) {
+            for (int row = 0; row < rows; row++) {
+                // Calculate the position of each placeholder relative to the board, including the offset.
+                Vector3 position = new Vector3(
+                    offset.x + (row * cellsize.x),
+                    -offset.y - (col * cellsize.y),
+                    0);
+                if (boardForRound[row, col] != null) {
+                    var temp = boardForRound[row, col];
+                    temp.gameObject.transform.SetParent(board.transform);
+                    temp.gameObject.transform.localPosition = position;
+                    temp.gameObject.GetComponent<RectTransform>().sizeDelta = cellsize;
+                    temp.gameObject.SetActive(true);
+                }
             }
         }
     }

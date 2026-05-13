@@ -4,26 +4,22 @@ using UnityEngine;
 public class TileBag: MonoBehaviour {
     
     public GameObject tilePrefab; // The prefab of a tile.
-    public GameObject handTileHolder; // The holder for hand tiles.
-    
+
     private List<TileScript> tileBag = new List<TileScript>();
-    [SerializeField]
-    private int startHandSize = 6;
+    private List<TileScript> tileReferences = new List<TileScript>();
     public List<TileScript> handTiles = new List<TileScript>();
     
     public int GetCurrentTileCount() {
         return handTiles.Count;
     }
 
-    private void Start() {
+    private void Awake() {
         InitializeTileBag();
-        for (int amount = 1; amount <= startHandSize; amount++) {
-            AddTileToHand(GetRandomLetterFromBag());
-        }
     }
 
-    private void InitializeTileBag() {
+    public void InitializeTileBag() {
         tileBag.Clear();
+        tileReferences.Clear();
         AddTilesToBag("A", 9, 1);
         AddTilesToBag("B", 2, 3);
         AddTilesToBag("C", 2, 3);
@@ -54,11 +50,20 @@ public class TileBag: MonoBehaviour {
 
     private void AddTilesToBag(string letter, int amount, int points) {
         for (int i = 0; i < amount; i++) {
-            GameObject tempTile = Instantiate(tilePrefab);
+            GameObject tempTile = Instantiate(tilePrefab, transform);
             TileScript tempScript = tempTile.GetComponent<TileScript>();
             tempScript.InitTile(letter, points);
             tempTile.SetActive(false);
             tileBag.Add(tempScript);
+            tileReferences.Add(tempScript);
+        }
+    }
+
+    public void RetrieveAllTiles() {
+        foreach (var tile in tileReferences) {
+            tile.GetComponent<TileMove>().onBoard = false;
+            tile.transform.SetParent(transform);
+            tile.gameObject.SetActive(false);
         }
     }
 
@@ -69,18 +74,4 @@ public class TileBag: MonoBehaviour {
         return randomTile;
     }
 
-    public void AddTileToHand(TileScript tile) {
-        tile.gameObject.SetActive(true);
-        tile.transform.SetParent(handTileHolder.transform);
-        handTiles.Add(tile);
-    }
-
-    public void RefillHandTiles(int currentTileCount) {
-        // Calculate the number of tiles needed to refill
-        int tilesToDraw = 7 - currentTileCount; 
-        // Draw the calculated number of random tiles from the bag
-        for (int amount = 1; amount < tilesToDraw; amount++) {
-            AddTileToHand(GetRandomLetterFromBag());
-        }
-    }
 }

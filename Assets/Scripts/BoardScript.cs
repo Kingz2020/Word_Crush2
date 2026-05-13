@@ -9,9 +9,12 @@ using static PrintWords;
 public class BoardScript : MonoBehaviour {
     
     public TextMeshProUGUI textScore;
+    public GameObject handTileHolder;
     TileBag _tileBag;
     TileScript _tileScript;
     [SerializeField] private PrintWords printWords;
+    [SerializeField] private TurnManager _turnManager;
+    [SerializeField] private DisplayHandler _displayHandler;
     public UnityEvent hidePointTiles;
     public List<TileMove> recordedPositions = new List<TileMove>();
     public TileScript[,] valTiles = new TileScript[15, 15];
@@ -19,20 +22,28 @@ public class BoardScript : MonoBehaviour {
     public int currentScore;
     public int gridSizeX = 15; // Set your grid size X dimension here (e.g., 15).
     public int gridSizeY = 15; // Set your grid size Y dimension here (e.g., 15).
-    
+    public bool NewGameSet = false;
+
     void OnDrawGizmos() {
         // Draw a yellow sphere at the transform's position
         Gizmos.color = Color.yellow;
         Gizmos.DrawSphere(transform.position, 1);
     }
 
-    public void EndTurn() {
-        // Clear the validated tiles list for a new turn
-        // Validate the board for valid placement
-        // Validate that all tiles form correct words
+    public void StartNewGame() {
+        _turnManager.players[0].ResetPlayer();
+        _turnManager.players[1].ResetPlayer();
+        _tileBag.RetrieveAllTiles();
+        _turnManager.ResetTurnManager();
+        _turnManager.RefillHandTiles(7);
+        SetPlayerHandTiles(_turnManager.GetTilesForRound());
+        _displayHandler.ResetDisplay();
+        _turnManager.timeRemaining = _turnManager.turnTime; // Reset timer for the first turn
+        _turnManager.UpdateTimer();
+        NewGameSet = true;
+    }
 
-        // Populate the validated tiles list with recorded positions
-        //List<TileMove> recordedPositions = boardScript.GetRecordedPositions();
+    public void EndTurn() {
 
         foreach (List<TileScript> word in CollectAllWords(AllTilesInSameLine())) {
             string assembledWord = String.Empty;
@@ -53,33 +64,22 @@ public class BoardScript : MonoBehaviour {
             valTiles[tileMove.X, tileMove.Y] = tileMove.GetComponent<TileScript>();
         }
 
-        Debug.Log("all letters are stored");
-
-        // Refill player's hand
-        int currentTileCount = _tileBag.GetCurrentTileCount();
-        _tileBag.RefillHandTiles(currentTileCount);
-
+        _turnManager.AddPlayerPoints(CalculateScore(CollectAllWords(AllTilesInSameLine())));
+        _turnManager.SetPlayersTurn(recordedPositions);
+        _turnManager.SetPlayersBoard(valTiles);
         recordedPositions.Clear();
-            
-
-        // Update points
-        // ... Implement logic to update player's points
-
-        // Transfer moves to board array and/or history, chat, and clear the list
-        // ... Implement logic to transfer moves to relevant data structures and clear the list
-
-        // Pass turn to other player
-        // ... Implement logic to pass turn to the next player
+        HideAllPointTiles();    
+        _turnManager.EndTurn();
     }
 
     public void HideAllPointTiles() {
          hidePointTiles?.Invoke();
     }
-    private void Start() {
-        _tileBag = GameObject.Find("Handtiles").GetComponent<TileBag>();
-        //tileScript2 = GameObject.Find("New Basic Tile").GetComponent<TileScript2>();
+
+    private void Awake() {
+        _tileBag = GameObject.Find("TileBag").GetComponent<TileBag>();
     }
-    
+
     public void RecordTilePosition(TileMove tileMove) {
         // Record the position of the placed tile.
         recordedPositions.Add(tileMove);
@@ -88,46 +88,17 @@ public class BoardScript : MonoBehaviour {
     public List<TileMove> GetRecordedPositions() {
         return recordedPositions;
     }
-
-    public GameObject GetTileAtPosition(Vector2Int position)
-    {
-        GameObject[] tilesOnBoard = GameObject.FindGameObjectsWithTag("New Basic Tile");
-
-        foreach (GameObject tile in tilesOnBoard)
-        {
-            TileScript tileScript = tile.GetComponent<TileScript>();
-
-            // Retrieve the recorded local positions of the tiles.
-            List<Vector3> localPositions = tileScript.GetLocalPositions();
-
-            foreach (var localPos in localPositions)
-            {
-                Vector3 boardPosition = transform.position; // Adjust this to match the board's position or relative positioning.
-
-                // Check if the calculated local position matches the provided position.
-                if (Vector2Int.FloorToInt(boardPosition) == position)
-                {
-                    return tile;
-                }
-            }
+    
+    public void SetPlayerHandTiles(List<TileScript> tiles) {
+        foreach (TileScript tile in _turnManager.GetTilesForRound()) {
+           AddTileToHand(tile);
         }
-
-        return null; // If no tile is found at the given position.
     }
-    /*public void RemoveTileFromBoard(GameObject tile)
-    {
-        // Disable the tile's visual representation
-        //tile.SetActive(false);
 
-        // Retrieve the tile's position from the recorded positions
-        //List<TileMove> recordedPositions = GetRecordedPositions();
-        //Vector2Int tilePosition = GetTilePositionFromGameObject(tile);
-
-        // Remove the tile from the recorded positions
-        //recordedPositions.RemoveAll(tileMove => tileMove.X == tilePosition.x && tileMove.Y == tilePosition.y );
-
-
-    }*/
+    private void AddTileToHand(TileScript tile) {
+        tile.gameObject.SetActive(true);
+        tile.transform.SetParent(handTileHolder.transform);
+    }
 
     public TilePlacement AllTilesInSameLine() {
         //string[,] valTiles = valTiles;
@@ -146,21 +117,10 @@ public class BoardScript : MonoBehaviour {
         return TilePlacement.WrongTilePlacement;
     }
 
-    private Vector2Int GetTilePositionFromGameObject(GameObject tile) {
-        string tileName = tile.name;
-
-        // Extract the X and Y coordinates from the tile's name
-        int xPosition = int.Parse(tileName.Substring(4, 1));
-        int yPosition = int.Parse(tileName.Substring(6, 1));
-
-        // Return the tile's position as a Vector2Int
-        return new Vector2Int(xPosition, yPosition);
-    }
-
     public void RetrieveTilesFromBoard() {
         foreach (TileMove position in recordedPositions) {
             position.onBoard = false;
-            _tileBag.AddTileToHand(position.gameObject.GetComponent<TileScript>());
+            AddTileToHand(position.GetComponent<TileScript>());
         }
         recordedPositions.Clear();
         placedTilePositions = new TileScript[15, 15];
@@ -175,31 +135,18 @@ public class BoardScript : MonoBehaviour {
             tempBoard[tempTile.X, tempTile.Y] = tempTile.GetComponent<TileScript>();
         }
 
-        if (orientation == TilePlacement.SingleTile) {
-            var singleTile = GetRecordedPositions()[0];
-            if( tempBoard[singleTile.X - 1, singleTile.Y] == null
-                && tempBoard[singleTile.X, singleTile.Y - 1] == null
-                && tempBoard[singleTile.X + 1, singleTile.Y] == null
-                && tempBoard[singleTile.X, singleTile.Y + 1] == null) {
-                List<TileScript> tempList = new List<TileScript>();
-                tempList.Add(singleTile.GetComponent<TileScript>());
-                wordList.Add(tempList);
-                return wordList;
-            }
-        }
-
         foreach (var tempTile in GetRecordedPositions()) {
             if (orientation == TilePlacement.Horizontal || orientation == TilePlacement.SingleTile) {
-                if (tempBoard[tempTile.X - 1, tempTile.Y] != null) {
+                if (tempTile.X > 0 && tempBoard[tempTile.X - 1, tempTile.Y] != null) {
                     wordList.Add(GetWordFromBoard(TilePlacement.Horizontal, tempBoard, GetFirstLetterIndex(TilePlacement.Horizontal, tempBoard, tempTile.X, tempTile.Y), tempTile.Y));
-                } else if (tempBoard[tempTile.X + 1, tempTile.Y] != null) {
+                } else if (tempTile.X < gridSizeX - 1 && tempBoard[tempTile.X + 1, tempTile.Y] != null & tempTile.X<14) {
                     wordList.Add(GetWordFromBoard(TilePlacement.Horizontal, tempBoard, tempTile.X, tempTile.Y));
                 }
             }
             if (orientation == TilePlacement.Vertical || orientation == TilePlacement.SingleTile) {
-                if (tempBoard[tempTile.X, tempTile.Y - 1] != null) {
+                if (tempTile.Y > 0 && tempBoard[tempTile.X, tempTile.Y - 1] != null) {
                     wordList.Add(GetWordFromBoard(TilePlacement.Vertical, tempBoard, tempTile.X, GetFirstLetterIndex(TilePlacement.Vertical, tempBoard, tempTile.X, tempTile.Y)));
-                } else if (tempBoard[tempTile.X, tempTile.Y + 1] != null) {
+                } else if (tempTile.Y < gridSizeY - 1 && tempBoard[tempTile.X, tempTile.Y + 1] != null & tempTile.Y < 14) {
                     wordList.Add(GetWordFromBoard(TilePlacement.Vertical, tempBoard, tempTile.X, tempTile.Y));
                 }
             }
@@ -208,22 +155,22 @@ public class BoardScript : MonoBehaviour {
         TileMove placedTile = GetRecordedPositions()[0];
         if (orientation == TilePlacement.Horizontal)
         {
-            if (tempBoard[placedTile.X, placedTile.Y - 1] != null)
+            if (placedTile.Y > 0 && tempBoard[placedTile.X, placedTile.Y - 1] != null)
             {
                 wordList.Add(GetWordFromBoard(TilePlacement.Vertical, tempBoard, placedTile.X, GetFirstLetterIndex(TilePlacement.Vertical, tempBoard, placedTile.X, placedTile.Y)));
             }
-            else if (tempBoard[placedTile.X, placedTile.Y + 1] != null)
+            else if (placedTile.Y < gridSizeY - 1 && tempBoard[placedTile.X, placedTile.Y + 1] != null & placedTile.Y < 14)
             {
                 wordList.Add(GetWordFromBoard(TilePlacement.Vertical, tempBoard, placedTile.X, placedTile.Y));
             }
         }
         if (orientation == TilePlacement.Vertical)
         {
-            if (tempBoard[placedTile.X - 1, placedTile.Y] != null)
+            if (placedTile.X > 0 && tempBoard[placedTile.X - 1, placedTile.Y] != null)
             {
                 wordList.Add(GetWordFromBoard(TilePlacement.Horizontal, tempBoard, GetFirstLetterIndex(TilePlacement.Horizontal, tempBoard, placedTile.X, placedTile.Y), placedTile.Y));
             }
-            else if (tempBoard[placedTile.X + 1, placedTile.Y] != null)
+            else if (placedTile.X < gridSizeX - 1 && tempBoard[placedTile.X + 1, placedTile.Y] != null & placedTile.X < 14)
             {
                 wordList.Add(GetWordFromBoard(TilePlacement.Horizontal, tempBoard, placedTile.X, placedTile.Y));
             }
@@ -242,10 +189,14 @@ public class BoardScript : MonoBehaviour {
 
     public List<TileScript> GetWordFromBoard(TilePlacement orientation, TileScript[,] board, int row, int col) {
         List<TileScript> newWord = new List<TileScript>();
-        while (board[row, col] != null) {
+        while (board[row, col] != null ) {
             newWord.Add(board[row, col]);
-            if (orientation == TilePlacement.Horizontal) row++;
-            if (orientation == TilePlacement.Vertical) col++;
+
+            if (row < 14 && col < 14) { 
+                if (orientation == TilePlacement.Horizontal) row++;
+                if (orientation == TilePlacement.Vertical) col++;
+            }
+            else { return newWord; }
         }
         return newWord;
     }
@@ -270,5 +221,7 @@ public class BoardScript : MonoBehaviour {
         }
         return totalScore;
     }
+
+
 }
 

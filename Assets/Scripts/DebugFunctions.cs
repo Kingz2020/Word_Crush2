@@ -5,9 +5,8 @@ public class DebugFunctions: MonoBehaviour {
     
     [SerializeField] private BoardScript boardScript;
     [SerializeField] private TileBag tileBag;
-    [SerializeField] private PrintWords printWords;
     
-
+    
     public void DisplayRecordedPositions() {
         foreach (var tileMove in boardScript.recordedPositions) {
             Debug.Log("Recorded Position: " + tileMove.X + ", " + tileMove.Y);
@@ -16,11 +15,11 @@ public class DebugFunctions: MonoBehaviour {
     }
     
     public void RetrieveTilesFromBoard() {
-        boardScript.RetrieveTilesFromBoard();
+        tileBag.RetrieveAllTiles();
     }
 
     public void DrawTile() {
-        tileBag.AddTileToHand(tileBag.GetRandomLetterFromBag());
+        //tileBag.AddTileToHand(tileBag.GetRandomLetterFromBag());
     }
     
     public void CheckSameLine() {
@@ -32,6 +31,11 @@ public class DebugFunctions: MonoBehaviour {
         foreach (TileScript tile in tileBag.handTiles) {
             Debug.Log("Letter: " + tile.GetLetter() + ", Points: " + tile.GetPoints());
         }
+    }
+   
+    public void NewGame() {
+
+        boardScript.StartNewGame();
     }
 
     public void PrintWords() {
